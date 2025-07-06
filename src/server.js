@@ -1,12 +1,8 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import axios from 'axios';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-// Load environment variables from .env file if present
-dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -14,10 +10,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Serve static frontend from /public
+// Serve static frontend from /dist (built React app)
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(path.join(__dirname, '..', 'dist')));
 
 // Helper: normalise input to word1.word2.word3
 function normaliseW3W(input) {
@@ -105,7 +101,7 @@ app.use((err, req, res, next) => {
 
 // Fallback: serve index.html for any other route (useful for SPA routing)
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, '..', 'dist', 'index.html'));
 });
 
 app.listen(PORT, () => {
