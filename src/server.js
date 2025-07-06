@@ -58,21 +58,33 @@ app.post('/convert', async (req, res) => {
       return res.status(400).json({ error: 'Invalid what3words address format.' });
     }
 
-    const apiKey = process.env.W3W_API_KEY;
-    if (!apiKey) {
-      console.error('Missing W3W_API_KEY env variable');
-      return res.status(500).json({ error: 'Server configuration error.' });
+    // Attempt to get coordinates by scraping what3words page (no API key required)
+    const pageUrl = `https://what3words.com/${encodeURIComponent(normalised)}`;
+    const htmlResp = await axios.get(pageUrl);
+    const html = htmlResp.data;
+
+    const scriptMatch = html.match(/<script id="__NEXT_DATA__"[^>]*>(.*?)<\/script>/s);
+    if (!scriptMatch || scriptMatch.length < 2) {
+      return res.status(500).json({ error: 'Failed to parse what3words page.' });
     }
 
-    const url = `https://api.what3words.com/v3/convert-to-coordinates?words=${encodeURIComponent(normalised)}&key=${apiKey}`;
-
-    const response = await axios.get(url);
-    const { coordinates } = response.data;
-    if (!coordinates || !coordinates.lat || !coordinates.lng) {
-      return res.status(500).json({ error: 'Failed to retrieve coordinates.' });
+    let jsonData;
+    try {
+      jsonData = JSON.parse(scriptMatch[1]);
+    } catch (e) {
+      console.error('JSON parse error', e);
+      return res.status(500).json({ error: 'Failed to parse what3words data.' });
     }
 
-    return res.json({ latitude: coordinates.lat, longitude: coordinates.lng });
+    const coords =
+      jsonData?.props?.pageProps?.location?.coordinates ||
+      jsonData?.props?.pageProps?.countryConfig?.coordinates;
+
+    if (!coords || typeof coords.lat !== 'number' || typeof coords.lng !== 'number') {
+      return res.status(500).json({ error: 'Coordinates not found.' });
+    }
+
+    return res.json({ latitude: coords.lat, longitude: coords.lng });
   } catch (err) {
     console.error(err.response?.data || err.message);
     if (err.response && err.response.data && err.response.data.error) {
