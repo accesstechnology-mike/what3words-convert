@@ -27,7 +27,7 @@ async function handleSubmit(e) {
 
   const payload = { w3w: value };
   try {
-    const res = await fetch('/convert', {
+    const res = await fetch('/api/convert', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

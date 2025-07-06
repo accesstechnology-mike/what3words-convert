@@ -1,23 +1,4 @@
-import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
 import axios from 'axios';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-// Load environment variables from .env file if present
-dotenv.config();
-
-const app = express();
-const PORT = process.env.PORT || 3000;
-
-app.use(cors());
-app.use(express.json());
-
-// Serve static frontend from /public
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Helper: normalise input to word1.word2.word3
 function normaliseW3W(input) {
@@ -45,12 +26,16 @@ function normaliseW3W(input) {
   return parts.join('.');
 }
 
-// POST /convert
-app.post('/convert', async (req, res) => {
+export default async function handler(req, res) {
+  if (req.method !== 'POST') {
+    res.setHeader('Allow', ['POST']);
+    return res.status(405).json({ error: 'Method Not Allowed' });
+  }
+
   try {
     const { w3w } = req.body;
     if (!w3w) {
-      return res.status(400).json({ error: 'Missing \"w3w\" field in request body.' });
+      return res.status(400).json({ error: 'Missing "w3w" field in request body.' });
     }
 
     const normalised = normaliseW3W(w3w);
@@ -80,20 +65,4 @@ app.post('/convert', async (req, res) => {
     }
     return res.status(500).json({ error: 'Internal server error.' });
   }
-});
-
-// Alias endpoint for consistency with Vercel function route
-app.post('/api/convert', async (req, res) => {
-  req.url = '/convert';
-  // Reuse the same handler by forwarding request
-  return app._router.handle(req, res);
-});
-
-// Fallback: serve index.html for any other route (useful for SPA routing)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
-});
-
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+}
