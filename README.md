@@ -1,113 +1,206 @@
-# What3Words → Map Converter
+# What3Words → Maps Converter 🗺️
 
-A beautiful, modern web application that converts What3Words addresses to coordinates and displays them on interactive maps. Built with React, HeroUI, and Tailwind CSS.
+A modern, mobile-first React web app that converts any **what3words** address to precise coordinates and provides instant access to interactive maps.
 
-## Features
+Built with **React + Vite** for lightning-fast development and **Vercel serverless functions** for seamless deployment.
 
-- ✨ **Beautiful UI**: Modern design with HeroUI components and smooth animations
-- 🗺️ **Multiple Map Options**: Open locations in Google Maps or Apple Maps
-- 📋 **Copy Links**: Easy one-click copying of map links
-- 📱 **Responsive Design**: Works perfectly on desktop and mobile devices
-- 🌙 **Dark Mode Support**: Automatic dark mode detection
-- ⚡ **Fast Performance**: Built with Vite for lightning-fast development
+---
 
-## Tech Stack
+## ✨ Features
 
-- **Frontend**: React 18, HeroUI, Tailwind CSS
-- **Backend**: Node.js, Express
-- **Build Tool**: Vite
-- **Package Manager**: Bun
-- **Icons**: Heroicons
+• **Smart Input Processing** - Accepts what3words addresses in any format (dots, spaces, commas, leading slashes)
+• **Real-time Conversion** - Instant conversion to latitude/longitude coordinates  
+• **Multiple Map Integrations** - Direct links to Google Maps and Apple Maps
+• **Responsive Design** - Beautiful UI with Material Tailwind components
+• **Copy to Clipboard** - One-click copying of coordinates and map links
+• **Embedded Preview** - Live Google Maps preview (desktop)
+• **No API Key Required** - Uses intelligent web scraping approach
 
-## Getting Started
+---
 
-### Prerequisites
+## 🚀 Quick Start
 
-- [Bun](https://bun.sh/) (recommended) or Node.js
-- What3Words API key
-
-### Installation
-
-1. Clone the repository:
+### Frontend Development (Hot Reloading)
 ```bash
-git clone <repository-url>
-cd what3words-convert
+# Install dependencies
+pnpm install
+
+# Start frontend with hot reloading
+pnpm run dev
+# → http://localhost:5173 (API calls will fail, but great for UI work)
 ```
 
-2. Install dependencies:
+### Full Development (Frontend + API)
 ```bash
-bun install
+# Run both frontend and backend
+pnpm run dev:full
+# → Frontend: http://localhost:5173 (with hot reloading)
+# → API: http://localhost:3000 (serverless functions)
 ```
 
-3. Create a `.env` file in the root directory:
-```env
-W3W_API_KEY=your_what3words_api_key_here
-```
-
-4. Start the development server:
+### API Only
 ```bash
-# Terminal 1: Start the backend server
-bun run server
-
-# Terminal 2: Start the frontend development server
-bun run dev
+# Just the serverless functions
+pnpm run dev:api
+# → http://localhost:3000
 ```
 
-5. Open your browser and navigate to `http://localhost:5173`
+---
 
-## Usage
+## 🏗️ Project Structure
 
-1. Enter a What3Words address (e.g., `index.home.raft`)
-2. Click "Convert to Coordinates" to get the location
-3. Use the buttons to open the location in Google Maps or Apple Maps
-4. Copy the map links to share with others
-5. View the embedded map preview
+```
+src/
+├── main.jsx           # React entry point
+├── App.jsx            # Main React component
+├── index.css          # Tailwind styles
+api/
+├── convert.js         # Serverless function for w3w conversion
+public/
+├── index.html         # HTML template
+├── vite.config.js     # Vite configuration
+├── vercel.json        # Vercel deployment config
+└── package.json       # Dependencies & scripts
+```
 
-## Development
+---
+
+## 🔧 Tech Stack
+
+**Frontend:**
+- ⚛️ React 18
+- ⚡ Vite (Fast development & building)
+- 🎨 Material Tailwind UI
+- 🌊 Tailwind CSS
+
+**Backend:**
+- 🔧 Vercel Serverless Functions
+- 📡 Axios for HTTP requests
+- 🕷️ Web scraping (no API key needed)
+
+**Deployment:**
+- 🚀 Vercel (Frontend CDN + Serverless functions)
+
+---
+
+## 🔌 API Usage
+
+### `POST /convert`
+
+Convert a what3words address to coordinates.
+
+**Request:**
+```bash
+curl -X POST http://localhost:3000/convert \
+  -H "Content-Type: application/json" \
+  -d '{"w3w": "index.home.raft"}'
+```
+
+**Response:**
+```json
+{
+  "latitude": 51.520847,
+  "longitude": -0.195521
+}
+```
+
+**Supported Formats:**
+- `index.home.raft`
+- `///index.home.raft`  
+- `index home raft`
+- `index, home, raft`
+
+---
+
+## 🛠️ Development
+
+### Hot Reloading Setup
+
+This project uses **two servers** for optimal development experience:
+
+1. **Vite Dev Server** (port 5173) - Frontend with hot reloading
+2. **Vercel Dev Server** (port 3000) - Serverless functions
+
+**Why two servers?**
+- Vite provides excellent hot module replacement for React
+- Vercel dev simulates serverless functions locally
+- Vite proxies API calls to the Vercel dev server
 
 ### Available Scripts
 
-- `bun run dev` - Start the Vite development server
-- `bun run build` - Build the application for production
-- `bun run preview` - Preview the production build
-- `bun run server` - Start the Express backend server
+| Command | Description |
+|---------|-------------|
+| `pnpm run dev` | Frontend only (hot reloading) |
+| `pnpm run dev:full` | Frontend + API (recommended) |
+| `pnpm run dev:api` | API only |
+| `pnpm run build` | Production build |
 
-### Project Structure
+---
 
-```
-what3words-convert/
-├── src/
-│   ├── App.jsx          # Main React component
-│   ├── main.jsx         # React entry point
-│   └── index.css        # Global styles
-├── public/              # Static assets
-├── src/server.js        # Express backend server
-├── index.html           # HTML template
-├── vite.config.js       # Vite configuration
-├── tailwind.config.js   # Tailwind CSS configuration
-└── package.json         # Dependencies and scripts
+## 🚀 Deployment
+
+### Vercel (Recommended)
+
+```bash
+# Deploy to Vercel
+vercel --prod
 ```
 
-## API Endpoints
+The app automatically deploys:
+- **Frontend** → Static files on Vercel's global CDN
+- **API** → Serverless functions
 
-- `POST /convert` - Convert What3Words address to coordinates
-  - Body: `{ "w3w": "index.home.raft" }`
-  - Response: `{ "latitude": 51.5074, "longitude": -0.1278 }`
+### Other Platforms
 
-## Contributing
+Build the static frontend:
+```bash
+pnpm run build
+# Files in dist/ folder
+```
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+Deploy the `api/` folder as serverless functions on your platform of choice.
 
-## License
+---
 
-MIT License - see LICENSE file for details.
+## 🎯 Why This Architecture?
 
-## Acknowledgments
+**React + Vite:** Lightning-fast development with instant hot reloading
+**Serverless Functions:** Scalable backend without server management  
+**Web Scraping:** No API keys or rate limits
+**Vercel:** Seamless deployment with global CDN
 
-- [What3Words](https://what3words.com/) for the location API
-- [HeroUI](https://heroui.com/) for the beautiful UI components
-- [Tailwind CSS](https://tailwindcss.com/) for the utility-first CSS framework
+This **JAMstack** approach provides excellent performance, developer experience, and scalability.
+
+---
+
+## 📝 License
+
+MIT License - feel free to use this project for your own what3words conversion needs!
+
+## Favicons
+
+The project includes a custom favicon set based on the map pin icon:
+
+- `public/favicon.svg` - Vector favicon (main)
+- `public/favicon-16x16.png` - 16x16 PNG
+- `public/favicon-32x32.png` - 32x32 PNG  
+- `public/apple-touch-icon.png` - 180x180 Apple touch icon
+- `public/android-chrome-192x192.png` - 192x192 Android icon
+- `public/site.webmanifest` - Web app manifest
+
+### Generating PNG favicons
+
+You can generate PNG favicons from the SVG in several ways:
+
+1. **Using ImageMagick** (recommended):
+   ```bash
+   cd public
+   ./generate_png_favicons.sh
+   ```
+
+2. **Using the HTML generator**:
+   - Open `public/create_favicons.html` in a browser
+   - Download the generated PNG files
+
+3. **Using online tools**:
+   - Use the SVG file with favicon generators like [RealFaviconGenerator](https://realfavicongenerator.net/)

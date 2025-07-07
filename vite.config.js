@@ -7,6 +7,8 @@ export default defineConfig({
     outDir: 'dist'
   },
   server: {
+    port: 5173,
+    strictPort: true,
     proxy: {
       '/convert': {
         target: 'http://localhost:3000',
